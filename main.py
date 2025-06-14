@@ -6,7 +6,7 @@ from handlers import (
     youtube_handler,
     playstation_handler,
     myproperty_handler,
-    mycars_handler
+    mycars_handler,
 )
 from dotenv import load_dotenv
 import os
@@ -29,8 +29,17 @@ if not API_TOKEN:
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
+# ID администратора для отправки уведомлений
+ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "0"))
+
 # Пользователи, которым разрешено использовать бота
 AUTHORIZED_USERNAMES = {"HJDmitry"}
+
+
+async def on_startup(dp: Dispatcher):
+    """Sends a startup notification to the administrator."""
+    if ADMIN_CHAT_ID:
+        await dp.bot.send_message(ADMIN_CHAT_ID, "Бот запущен")
 
 
 @dp.message_handler(lambda message: (message.from_user.username or "") not in AUTHORIZED_USERNAMES)
@@ -51,4 +60,4 @@ dp.register_message_handler(myproperty_handler.handle_myproperty_command, comman
 dp.register_message_handler(mycars_handler.handle_mycars_command, commands=['mycars'])
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)
