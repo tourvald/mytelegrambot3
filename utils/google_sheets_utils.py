@@ -1,7 +1,6 @@
-import httplib2
-import apiclient.discovery
-from oauth2client.service_account import ServiceAccountCredentials
 import os
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
 
 
 def get_myphones_spreadsheet(range='myphones'):
@@ -10,14 +9,12 @@ def get_myphones_spreadsheet(range='myphones'):
     spreadsheet_id = '1nJHlfoRuqu3boqb7Bf3ymI-NRdV0kIkzE80PqI5igVg'
 
     # Загрузка учетных данных из файла токена
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        CREDENTIALS_FILE,
-        ['https://www.googleapis.com/auth/spreadsheets',
-         'https://www.googleapis.com/auth/drive'])
+    scopes = ['https://www.googleapis.com/auth/spreadsheets',
+              'https://www.googleapis.com/auth/drive']
+    credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
 
     # Авторизация и создание сервиса для работы с Google Sheets
-    httpAuth = credentials.authorize(httplib2.Http())
-    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
+    service = build('sheets', 'v4', credentials=credentials)
 
     # Получение данных из таблицы
     values = service.spreadsheets().values().get(
@@ -26,5 +23,4 @@ def get_myphones_spreadsheet(range='myphones'):
         majorDimension='ROWS',
     ).execute()
 
-    print(values)
     return values
