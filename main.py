@@ -1,6 +1,6 @@
 # main.py
 
-from aiogram import Bot, Dispatcher, executor
+from aiogram import Bot, Dispatcher, executor, types
 from handlers import (
     avito_handler,
     youtube_handler,
@@ -28,6 +28,17 @@ if not API_TOKEN:
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
+
+# Пользователи, которым разрешено использовать бота
+AUTHORIZED_USERNAMES = {"HJDmitry"}
+
+
+@dp.message_handler(lambda message: (message.from_user.username or "") not in AUTHORIZED_USERNAMES)
+async def handle_unauthorized_user(message: types.Message):
+    """Ответ для пользователей без доступа."""
+    await message.reply(
+        "Здассссьте! Чтобы получить доступ, напишите администратору @HJDmitry"
+    )
 
 # Инициализация базы данных
 initialize_database()
