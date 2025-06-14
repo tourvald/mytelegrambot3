@@ -1,0 +1,3 @@
+# Игнорируем конфиги с чувствительной инфой
+config/.env
+config/api_google_sheets_token.json
